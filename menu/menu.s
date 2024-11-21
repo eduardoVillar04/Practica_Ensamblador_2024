@@ -1,5 +1,5 @@
     .data
-menu:   .ascii  "Programa COLORES\n"
+menu:   .ascii  "\n\nPrograma COLORES\n"
         .ascii  "Pulse la inicial para seleccionar operación:\n\n"
         .ascii  "<H> Leer color en formato hexadecimal (ej: FF00FF)\n"
         .ascii  "<N> Leer color con niveles r-g-b (ej: 0.5 1.0 0.0)\n\n"
@@ -12,6 +12,8 @@ menu:   .ascii  "Programa COLORES\n"
         .ascii  "<M> Aplicar filtro magenta\n\n"
         .asciiz  "<S> Salir\n\n"
 
+msj_error:
+        .asciiz "Valor de la selección incorrecto. Inténtelo de nuevo"
     .globl main
 main:
 
@@ -35,8 +37,19 @@ loop:
     beq $t0, "C", filtroC
     beq $t0, "M", filtroM
 
-    bne $v0, "S", loop # si el character no es S
+    beq $t0, "S", exit # si el character es S se va a exit
+
+    #imprimir texto del mensaje de error
+    li $v0 4
+    la $a0 msj_error # imprimir mensaje de error
     syscall
+
+    #volver al bucle después del mensaje de error
+    j loop
+    
+     # j loop -> ponerlo al final de cada función (se vuelve al bucle)
+
+exit:
     li $v0 10 # salir del programa
     syscall
 
