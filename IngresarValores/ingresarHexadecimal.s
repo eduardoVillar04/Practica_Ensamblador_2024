@@ -17,7 +17,7 @@ main:
 
     li $v0 8                #llamada a leer string
     la $a0 str_buffer       #indicamos la direccion de memoria donde se guardara el str 
-    #li $a1 6                #indicamos la longitud maxima del string
+    li $a1 8                #indicamos la longitud maxima del string
     syscall
 
 
