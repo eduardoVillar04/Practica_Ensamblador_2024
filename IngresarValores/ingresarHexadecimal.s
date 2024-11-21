@@ -17,7 +17,7 @@ main:
 
     li $v0 8                #llamada a leer string
     la $a0 str_buffer       #indicamos la direccion de memoria donde se guardara el str 
-    li $a1 6                #indicamos la longitud maxima del string
+    #li $a1 6                #indicamos la longitud maxima del string
     syscall
 
 
@@ -27,7 +27,7 @@ main:
 
 while1:
 
-    move $a0 $a2              #guardamos el valor del caracter correspondiente en a0
+    lb $a0 ($a2)            #guardamos el valor del caracter correspondiente en a0
     beqz $a0 fin1           #si el caracter actual es 0, el bucle termina
 
     mul $a1 $a1 16        
@@ -47,7 +47,7 @@ fin1:
 
     #IMRPIMIR POR PANTALLA: QUITAR
     li $v0 4
-    la $a0 actualColor
+    lw $a0 actualColor
     syscall
 
     li $v0 10
@@ -72,6 +72,8 @@ h2i:
 
     sub $v0 $a0 '0'
 
+    j finh2i
+
 else_if:
 
     blt $a0 'A' error       #Si el char actual es menor que 'A' no cumple los parametros y va al error
@@ -80,6 +82,8 @@ else_if:
     # 'A' <= char <= 'F'
 
     sub $v0 $a0 '9'
+
+    j finh2i
 
 error:
 
