@@ -65,7 +65,7 @@ h2i:
     subu $sp $sp 8
     sw $a0 4($sp)
 
-    blt $a0 '0'else_if      #Si el char actual es menor que '0' no cumple los parametros y va al else_if
+    blt $a0 '0' else_if      #Si el char actual es menor que '0' no cumple los parametros y va al else_if
     bgt $t0 '9' else_if	    #Si el char actual es mayor que '9' no cumple los parametros y va al else_if
     
     # 0 <= char <= 9
