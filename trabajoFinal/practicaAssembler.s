@@ -37,6 +37,15 @@ str_red: .asciiz "INGRESA R [0,1]: "
 str_blue: .asciiz "INGRESA G [0,1]: "
 str_green: .asciiz "INGRESA B [0,1]: "
 
+#filters
+RedFilter: .word 0x00FF0000
+BlueFilter: .word 0x0000FF00
+GreenFilter: .word 0x000000FF
+YellowFilter: .word 0x00FFFF00
+CyanFilter: .word 0x0000FFFF
+MagentaFilter: .word 0x00FF00FF
+msj_filter_success: .asciiz "\n\nFiltro aplicado correctamente"
+
 
     .text
     .globl main
@@ -93,8 +102,8 @@ salir:
     syscall
 
 # funciones
-
 #------------------------------------------------------------------------------------------------------#
+
 leerHex:
 
     li $v0, 4               #mensaje pidiendo string
@@ -131,8 +140,10 @@ read_hex_fin:
 
     sw $a1 actualColor              #Guardamos el resultado almacenado en $a1 en la direccion del color
 
-    li $v0, 4                       #Se comunica al usuario que el color ha sido guardado
-    la $a0, msj_read_success
+    #TODO mensaje no se imprime
+    #Se comunica al usuario que el numero ha sido ingresado
+    li $v0 4                       
+    la $a0 msj_read_success
     syscall
 
     # volver al bucle principal
@@ -217,6 +228,7 @@ read_RGB_while:
 
 read_RGB_fin:
 
+    #Se comunica al usuario que el numero ha sido ingresado
     li $v0 4
     la $a0 msj_read_success
     syscall
@@ -233,50 +245,40 @@ consulta:
 
 #------------------------------------------------------------------------------------------------------#
 
-filtroA:
-    li $v0, 4
-    la $a0, msj_prueba
-    syscall
-    j menu_loop
-
-#------------------------------------------------------------------------------------------------------#
-
-filtroC:
-    li $v0, 4
-    la $a0, msj_prueba
-    syscall
-    j menu_loop
-
-#------------------------------------------------------------------------------------------------------#
-
-filtroM:
-    li $v0, 4
-    la $a0, msj_prueba
-    syscall
-    j menu_loop
-
-#------------------------------------------------------------------------------------------------------#
-
 filtroR:
-    li $v0, 4
-    la $a0, msj_prueba
-    syscall
-    j menu_loop
-
-#------------------------------------------------------------------------------------------------------#
+    lw $t2 RedFilter # Le Decimos que el filtro es Rojo y Saltamos A Calcular
+    jr calculate
 
 filtroV:
-    li $v0, 4
-    la $a0, msj_prueba
-    syscall
-    j menu_loop
+    lw $t2 GreenFilter # Le Decimos que el filtro es Verde y Saltamos A Calcular
+    jr calculate
 
-#------------------------------------------------------------------------------------------------------#
+filtroA:
+    lw $t2 BlueFilter # Le Decimos que el filtro es Azul y Saltamos A Calcular
+    jr calculate
 
 filtroY:
-    li $v0, 4
-    la $a0, msj_prueba
+    lw $t2 YellowFilter # Le Decimos que el filtro es Amarillo y Saltamos A Calcular
+    jr calculate
+
+filtroC:
+    lw $t2 CyanFilter # Le Decimos que el filtro es Cyan y Saltamos A Calcular
+    jr calculate
+
+filtroM:
+    lw $t2 MagentaFilter # Le Decimos que el filtro es Magenta y Saltamos A Calcular
+    jr calculate
+
+calculate:
+    lw $t1 actualColor  # Cargamos el color a t1
+    and $t1 $t1 $t2     # Hacemos un AND con el filtro y el color
+    sw $t1 actualColor  # Cargamos el resultado a ActualColor
+
+    #Se comunica al usuario que el filtro ha sido aplicado
+    li $v0, 4                       
+    la $a0, msj_filter_success
     syscall
-    j menu_loop
+
+    jr menu_loop
 
 #------------------------------------------------------------------------------------------------------#

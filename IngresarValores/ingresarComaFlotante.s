@@ -18,7 +18,6 @@ str_green: .asciiz "INGRESA B [0,1]: "
 
 main:
 
-
     li $t1 255                      #pasamos el 255 a float para poder multiplicar con el
     mtc1 $t1 $f1                    #movemos el valor al coprocesador 
     cvt.s.w $f1 $f1                 #convertimos de int a float
@@ -28,9 +27,9 @@ main:
     li $t4 0                        #guardamos 0 en $t4 para usarlo como contador
 
 
-read_float_while:
+read_RGB_while:
 
-    beq $t4 3 read_float_fin                   #Si es la cuarta iteracion del string se termina
+    beq $t4 3 read_RGB_fin                   #Si es la cuarta iteracion del string se termina
 
     la $a0 ($t3)                    #cargamos el string que corresponde segun el ciclo del bucle
     li $v0 4                        #escribimos string
@@ -48,9 +47,9 @@ read_float_while:
     sub $t2 $t2 1                   #restamos en 1 byte la direccion del color
     addi $t3 $t3 18                 #aumentamos en 18 bytes la direccion del str, que son su longitud
     addi $t4 1                      #sumamos 1 al contador
-    j read_float_while
+    j read_RGB_while
 
-read_float_fin:
+read_RGB_fin:
 
     li $v0 10
     syscall
