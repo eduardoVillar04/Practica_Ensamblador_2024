@@ -33,11 +33,10 @@ main:
     li $a1 0                #iniciamos a1 a 0, sera donde se guardaran el valor total del color
     la $a2 str_buffer       #cargamos la direccion de memoria del str a a2
 
-while1:
+read_hex_while:
 
     lb $a0 ($a2)            #guardamos el valor del caracter correspondiente en a0
-    # beqz $a0 fin1           #si el caracter actual es 0, el bucle termina
-    beq $a0 10 fin1         #si el caracter actual es 10 (LINE FEED), el bucle termina
+    beq $a0 10 read_hex_fin         #si el caracter actual es 10 (LINE FEED), el bucle termina
 
     mul $a1 $a1 16        
     
@@ -48,9 +47,9 @@ while1:
 
     addu $a2 1              #Sumamos 1 a la direccion de memoria para ir al siguiente byte
 
-    j while1                #Repetimos bucle
+    j read_hex_while                #Repetimos bucle
 
-fin1:
+read_hex_fin:
 
     sw $a1 actualColor      #Guardamos el resultado almacenado en $a1 en la direccion del color
 
@@ -58,12 +57,6 @@ fin1:
     syscall
 
 h2i:
-    
-    # #prologo
-    # subu $sp $sp 24
-    # sw $a0 20($sp) 
-    # sw $ra 4($sp)
-    # sw $s0 ($sp)
 
     #prologo
     subu $sp $sp 8
@@ -101,13 +94,7 @@ h2i_error:
 
 finh2i:
 
-    # #epilogo
-    # lw $a0 20($sp)
-    # lw $ra 4($sp)
-    # lw $s0 ($sp)
-    # addu $sp $sp 24
-
-    #prologo
+    #epilogo
     lw $a0 4($sp)
     addu $sp $sp 8
 
