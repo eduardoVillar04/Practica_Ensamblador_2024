@@ -39,4 +39,4 @@ ImprimirComa:
     li $v0 4             #print string
     la $a0 coma          #cargar ", " para imprimir
     syscall
-    jr $ra               #volver a donde se estaba
+    jr $ra               #volver a donde se ha llamado
