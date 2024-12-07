@@ -30,26 +30,33 @@ msj_read_success: .asciiz "\n\nColor ingresado correctamente"
 
 #read hex
 str_read_hex: .asciiz "\n\nIngrese valor hexadecimal: "
-str_error: .asciiz "ERROR"
 
 #read float
 str_red: .asciiz "INGRESA R [0,1]: "
 str_blue: .asciiz "INGRESA G [0,1]: "
 str_green: .asciiz "INGRESA B [0,1]: "
+float_zero: .float 0.0
+float_one: .float 1.0
 
 #filters
 RedFilter: .word 0x00FF0000
-BlueFilter: .word 0x0000FF00
-GreenFilter: .word 0x000000FF
+GreenFilter: .word 0x0000FF00
+BlueFilter: .word 0x000000FF
 YellowFilter: .word 0x00FFFF00
 CyanFilter: .word 0x0000FFFF
 MagentaFilter: .word 0x00FF00FF
 msj_filter_success: .asciiz "\n\nFiltro aplicado correctamente"
 
 #imprimir
+h2iinicio: .asciiz "RGB: "
+str_h2ierror: .asciiz "i2h_ERROR"
+str_h2iresult:
+    PrimerHex: .byte '0'
+    SegundoHex: .byte '0'
+    str_imphex_fin: .byte 0
 inicio_componentes: .asciiz "RGB Componentes: "
 inicio_niveles: .asciiz "RGB Niveles: "
-inicio_CMYK: .asciiz "CMYK "
+inicio_CMYK: .asciiz "CMYK: "
 cian: .asciiz "C="
 amarillo: .asciiz ", Y="
 magenta: .asciiz ", M="
@@ -71,6 +78,11 @@ menu_loop:
     li $v0, 12          # leer un carácter
     syscall
     move $t0, $v0       # guardar el carácter en $t0
+
+    # salto de linea
+    li $v0, 4          
+    la $a0, newline    
+    syscall         
 
     # comparar con las opciones del menú para hacer los saltos a las diferentes funciones
 
@@ -207,6 +219,8 @@ finh2i:
 leerRGB:
     
     li $t1 255                      #pasamos el 255 a float para poder multiplicar con el
+    l.s $f3 float_zero              #cargamos 0 y 1 para hacer luego comparaciones
+    l.s $f4 float_one
     mtc1 $t1 $f1                    #movemos el valor al coprocesador 
     cvt.s.w $f1 $f1                 #convertimos de int a float
 
@@ -226,6 +240,11 @@ read_RGB_while:
     li $v0 6                        #leemos float, se guarda en $f0
     syscall
 
+    c.lt.s $f4 $f0                 #comprueba si 1 es menor que el valor ingresado (1<f0), si lo es activa la condition flag
+    bc1t read_RGB_error            #si se ha activado la flag saltamos al error
+    c.lt.s $f0 $f3                 #comprueba si el valor ingresado es menor que 0
+    bc1t read_RGB_error   
+
     mul.s $f2 $f1 $f0               #multiplicamos el float del usuario por 255 (float)
     cvt.w.s $f2 $f2                 #pasamos el registro a integer
     mfc1 $t0 $f2                    #movemos el resultado al registro $t0
@@ -236,6 +255,15 @@ read_RGB_while:
     addi $t3 $t3 18                 #aumentamos en 18 bytes la direccion del str, que son su longitud
     addi $t4 1                      #sumamos 1 al contador
     j read_RGB_while
+
+read_RGB_error:
+    
+    #Se comunica al usuario que ha habido un error
+    li $v0 4
+    la $a0 msj_error
+    syscall
+
+    j menu_loop
 
 read_RGB_fin:
 
@@ -251,9 +279,95 @@ read_RGB_fin:
 consulta:
     
     #Hexadecimal --------------------------------------------------------------------------------------------------------
+    li $v0 4            #print string
+    la $a0 h2iinicio       #cargar el mensaje inicial
+    syscall
 
-    #TODO: IMPLEMENTAR
+    li $a1 3            #a1 sera el iterador
+imphex_for:
+    sub $a1 $a1 1       #for (i=2; i>=0;i--)
+    la $a2 actualColor
+    add $a2 $a2 $a1
+    lbu $a0 ($a2)      #cargar el byte correcto
+    
+    jal i2h
+    #incrementar el contador
+    beqz $a1 imphex_fin
+    j imphex_for 
 
+i2h:
+    #prologo
+    subu $sp $sp 8
+    sw $a0 4($sp)
+    
+    li $t0 16
+    divu $a0 $t0      #dividir el numero por 16
+
+    mflo $t2        #cociente
+    mfhi $t3        #resto
+
+IfCociente:
+    blt $t2 10 CocienteElse_if
+    bge $t2 16 i2h_error
+
+    #10 <= cociente < 16
+    sub $t2 $t2 10
+    add $t2 $t2 'A'
+    sb $t2 PrimerHex
+    j IfResto
+
+CocienteElse_if:
+    #cociente < 10
+    blt $t2 0 i2h_error
+    
+    #0 <= cociente < 10
+    add $t2 $t2 '0'
+    sb $t2 PrimerHex
+    j IfResto
+
+IfResto:
+    blt $t3 10 RestoElseIf
+    bge $t3 16 i2h_error
+
+    #10 <= resto < 16
+    sub $t3 $t3 10
+    add $t3 $t3 'A'
+    sb $t3 SegundoHex
+    j imphex_fin_i2h
+
+RestoElseIf:
+    #resto < 10
+    blt $t3 0 i2h_error
+
+    #0 <= resto < 10
+    add $t3 $t3 '0'
+    sb $t3 SegundoHex
+    j imphex_fin_i2h
+
+i2h_error:
+    li $v0 4
+    la $a0 str_h2ierror
+    syscall
+
+    li $v0 10
+    syscall
+
+imphex_fin_i2h:
+    li $v0 4
+    la $a0 str_h2iresult
+    syscall
+
+    #epilogo
+    lw $a0 4($sp)
+    addu $sp $sp 8
+
+    jr $ra
+
+imphex_fin:
+   
+    li $v0, 4          
+    la $a0, newline    
+    syscall      
 
     #RGB Componentes ----------------------------------------------------------------------------------------------------
     li $v0 4            #print string
@@ -413,19 +527,19 @@ ObtenerK:
     li $v0 2            #print float
     mov.s $f12 $f7      #imprimir C
     syscall
-    
-    li $v0 4            #print string
-    la $a0 amarillo     #imprimir ", Y="
-    syscall
-    li $v0 2            #print float
-    mov.s $f12 $f9      #imprimir Y
-    syscall
 
     li $v0 4            #print string
     la $a0 magenta     #imprimir ", M="
     syscall
     li $v0 2            #print float
     mov.s $f12 $f8      #imprimir M
+    syscall
+
+    li $v0 4            #print string
+    la $a0 amarillo     #imprimir ", Y="
+    syscall
+    li $v0 2            #print float
+    mov.s $f12 $f9      #imprimir Y
     syscall
 
     li $v0 4            #print string

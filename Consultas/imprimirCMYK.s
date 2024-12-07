@@ -7,7 +7,7 @@ actualRed: .byte 88
 .byte 0
 
 #imprimir
-inicio: .asciiz "CMYK "
+inicio_CMYK: .asciiz "CMYK: "
 cian: .asciiz "C="
 amarillo: .asciiz ", Y="
 magenta: .asciiz ", M="
@@ -16,7 +16,7 @@ negro: .asciiz ", K="
 .text
 main:
     li $v0 4            #print string
-    la $a0 inicio       #cargar el mensaje inicial
+    la $a0 inicio_CMYK       #cargar el mensaje inicial
     syscall
 
     #cargar 255 y 1 como floats
@@ -91,17 +91,17 @@ ObtenerK:
     syscall
     
     li $v0 4            #print string
-    la $a0 amarillo     #imprimir ", Y="
-    syscall
-    li $v0 2            #print float
-    mov.s $f12 $f9      #imprimir Y
-    syscall
-
-    li $v0 4            #print string
     la $a0 magenta     #imprimir ", M="
     syscall
     li $v0 2            #print float
     mov.s $f12 $f8      #imprimir M
+    syscall
+
+    li $v0 4            #print string
+    la $a0 amarillo     #imprimir ", Y="
+    syscall
+    li $v0 2            #print float
+    mov.s $f12 $f9      #imprimir Y
     syscall
 
     li $v0 4            #print string

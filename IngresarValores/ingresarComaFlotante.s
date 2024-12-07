@@ -13,12 +13,17 @@ str_red: .asciiz "INGRESA R [0,1]: "
 str_blue: .asciiz "INGRESA G [0,1]: "
 str_green: .asciiz "INGRESA B [0,1]: "
 
+float_zero: .float 0.0
+float_one: .float 1.0
+
 .text
 .globl main
 
 main:
 
     li $t1 255                      #pasamos el 255 a float para poder multiplicar con el
+    l.s $f3 float_zero              #cargamos 0 y 1 para hacer luego comparaciones
+    l.s $f4 float_one
     mtc1 $t1 $f1                    #movemos el valor al coprocesador 
     cvt.s.w $f1 $f1                 #convertimos de int a float
 
@@ -38,6 +43,11 @@ read_RGB_while:
     li $v0 6                        #leemos float, se guarda en $f0
     syscall
 
+    c.lt.s $f4 $f0                 #comprueba si 1 es menor que el valor ingresado (1<f0), si lo es activa la condition flag
+    bc1t read_RGB_error            #si se ha activado la flag saltamos al error
+    c.lt.s $f0 $f3                 #comprueba si el valor ingresado es menor que 0
+    bc1t read_RGB_error        
+
     mul.s $f2 $f1 $f0               #multiplicamos el float del usuario por 255 (float)
     cvt.w.s $f2 $f2                 #pasamos el registro a integer
     mfc1 $t0 $f2                    #movemos el resultado al registro $t0
@@ -48,6 +58,8 @@ read_RGB_while:
     addi $t3 $t3 18                 #aumentamos en 18 bytes la direccion del str, que son su longitud
     addi $t4 1                      #sumamos 1 al contador
     j read_RGB_while
+
+read_RGB_error:
 
 read_RGB_fin:
 
