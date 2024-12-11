@@ -5,14 +5,11 @@ actualGreen: .byte 0
 actualRed: .byte 0
 .byte 0 
 
-# str_buffer: .space 6
-# str_fin: .byte 0
-
 str_error: .asciiz "ERROR"
 str_read_hex: .asciiz "INGRESE VALOR HEXADECIMAL: "
 
 str_buffer: .space 6
-str_fin: .word 0
+str_fin: .byte 0
 
 .text
 .globl main
