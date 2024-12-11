@@ -14,7 +14,8 @@ menu:   .ascii  "\n\nPrograma COLORES\n"
 
 # mensajes auxiliares
 msj_error: .asciiz "\n\nValor de la selección incorrecto. Inténtelo de nuevo"
-msj_prueba: .asciiz "\n\nholi"
+msj_prueba: .asciiz "\n\nPrueba"
+newline: .asciiz "\n"
 
 .text
 .globl main
@@ -30,28 +31,24 @@ loop:
     syscall
     move $t0, $v0       # guardar el carácter en $t0
 
+    # salto de linea
+    li $v0, 4          
+    la $a0, newline    
+    syscall         
+
     # comparar con las opciones del menú para hacer los saltos a las diferentes funciones
 
     beq $t0, 'S', salir # si es 'S' salir del programa
 
-    la $t1, leerHex
-    beq $t0, 'H', call
-    la $t1, leerRGB
-    beq $t0, 'N', call
-    la $t1, consulta
-    beq $t0, 'I', call
-    la $t1, filtroR
-    beq $t0, 'R', call
-    la $t1, filtroV
-    beq $t0, 'V', call
-    la $t1, filtroA
-    beq $t0, 'A', call
-    la $t1, filtroY
-    beq $t0, 'Y', call
-    la $t1, filtroC
-    beq $t0, 'C', call
-    la $t1, filtroM
-    beq $t0, 'M', call
+    beq $t0, 'H', leerHex
+    beq $t0, 'N', leerRGB
+    beq $t0, 'I', consulta
+    beq $t0, 'R', filtroR
+    beq $t0, 'V', filtroV
+    beq $t0, 'A', filtroA
+    beq $t0, 'Y', filtroY
+    beq $t0, 'C', filtroC
+    beq $t0, 'M', filtroM
 
     # mostrar mensaje de error si no coincide con ninguna opción
     li $v0, 4           
@@ -60,10 +57,6 @@ loop:
 
     # volver al bucle principal
     j loop
-
-# rutina para manejar saltos largos
-call:
-    jr $t1
 
 # salida del programa
 salir:

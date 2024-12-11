@@ -6,6 +6,13 @@ actualGreen: .byte 0
 actualRed: .byte 0
 .byte 0 
 
+#color para lectura rgb
+rgb_new_color:
+newBlue: .byte 0
+newGreen: .byte 0
+newRed: .byte 0
+.byte 0
+
 menu:   .ascii  "\n\nPrograma COLORES\n"
         .ascii  "Pulse la inicial para seleccionar operación:\n\n"
         .ascii  "<H> Leer color en formato hexadecimal (ej: FF00FF)\n"
@@ -24,17 +31,17 @@ msj_error: .asciiz "\n\nValor de la selección incorrecto. Inténtelo de nuevo"
 msj_prueba: .asciiz "\n\nPRUEBA"
 
 #read
+msj_read_success: .asciiz "\n\nColor ingresado correctamente"
 str_buffer: .space 6
 str_fin: .byte 0
-msj_read_success: .asciiz "\n\nColor ingresado correctamente"
 
 #read hex
 str_read_hex: .asciiz "\n\nIngrese valor hexadecimal: "
 
 #read float
 str_red: .asciiz "INGRESA R [0,1]: "
-str_blue: .asciiz "INGRESA G [0,1]: "
-str_green: .asciiz "INGRESA B [0,1]: "
+str_green: .asciiz "INGRESA G [0,1]: "
+str_blue: .asciiz "INGRESA B [0,1]: "
 float_zero: .float 0.0
 float_one: .float 1.0
 
@@ -88,24 +95,15 @@ menu_loop:
 
     beq $t0, 'S', salir # si es 'S' salir del programa
 
-    la $t1, leerHex
-    beq $t0, 'H', call
-    la $t1, leerRGB
-    beq $t0, 'N', call
-    la $t1, consulta
-    beq $t0, 'I', call
-    la $t1, filtroR
-    beq $t0, 'R', call
-    la $t1, filtroV
-    beq $t0, 'V', call
-    la $t1, filtroA
-    beq $t0, 'A', call
-    la $t1, filtroY
-    beq $t0, 'Y', call
-    la $t1, filtroC
-    beq $t0, 'C', call
-    la $t1, filtroM
-    beq $t0, 'M', call
+    beq $t0, 'H', leerHex
+    beq $t0, 'N', leerRGB
+    beq $t0, 'I', consulta
+    beq $t0, 'R', filtroR
+    beq $t0, 'V', filtroV
+    beq $t0, 'A', filtroA
+    beq $t0, 'Y', filtroY
+    beq $t0, 'C', filtroC
+    beq $t0, 'M', filtroM
 
     # mostrar mensaje de error si no coincide con ninguna opción
     li $v0, 4           
@@ -114,10 +112,6 @@ menu_loop:
 
     # volver al bucle principal
     j menu_loop
-
-# rutina para manejar saltos largos
-call:
-    jr $t1
 
 # salida del programa
 salir:
@@ -163,10 +157,9 @@ read_hex_fin:
 
     sw $a1 actualColor              #Guardamos el resultado almacenado en $a1 en la direccion del color
 
-    #TODO mensaje no se imprime
     #Se comunica al usuario que el numero ha sido ingresado
-    li $v0 4                       
     la $a0 msj_read_success
+    li $v0 4                       
     syscall
 
     # volver al bucle principal
@@ -224,7 +217,7 @@ leerRGB:
     mtc1 $t1 $f1                    #movemos el valor al coprocesador 
     cvt.s.w $f1 $f1                 #convertimos de int a float
 
-    la $t2 actualRed                #guardamos la direccion de actualBlue en $t2
+    la $t2 newRed                   #guardamos la direccion de newRed en $t2
     la $t3 str_red                  #guardamos la direccion de str_red en $t3
     li $t4 0                        #guardamos 0 en $t4 para usarlo como contador
 
@@ -266,6 +259,9 @@ read_RGB_error:
     j menu_loop
 
 read_RGB_fin:
+
+    lw $t0 rgb_new_color            #pasamos el color ingresado correctamente a actualColor
+    sw $t0 actualColor
 
     #Se comunica al usuario que el numero ha sido ingresado
     li $v0 4

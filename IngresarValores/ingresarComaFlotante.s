@@ -5,13 +5,16 @@ actualGreen: .byte 0
 actualRed: .byte 0
 .byte 0 
 
-str_buffer: .space 6
-str_fin: .byte 0
+rgb_new_color:
+newBlue: .byte 0
+newGreen: .byte 0
+newRed: .byte 0
+.byte 0
 
 str_error: .asciiz "ERROR"
 str_red: .asciiz "INGRESA R [0,1]: "
-str_blue: .asciiz "INGRESA G [0,1]: "
-str_green: .asciiz "INGRESA B [0,1]: "
+str_green: .asciiz "INGRESA G [0,1]: "
+str_blue: .asciiz "INGRESA B [0,1]: "
 
 float_zero: .float 0.0
 float_one: .float 1.0
@@ -21,20 +24,20 @@ float_one: .float 1.0
 
 main:
 
-    li $t1 255                      #pasamos el 255 a float para poder multiplicar con el
     l.s $f3 float_zero              #cargamos 0 y 1 para hacer luego comparaciones
     l.s $f4 float_one
+    li $t1 255                      #pasamos el 255 a float para poder multiplicar con el
     mtc1 $t1 $f1                    #movemos el valor al coprocesador 
     cvt.s.w $f1 $f1                 #convertimos de int a float
 
-    la $t2 actualRed                #guardamos la direccion de actualBlue en $t2
+    la $t2 newRed                   #guardamos la direccion de newRed en $t2
     la $t3 str_red                  #guardamos la direccion de str_red en $t3
     li $t4 0                        #guardamos 0 en $t4 para usarlo como contador
 
 
 read_RGB_while:
 
-    beq $t4 3 read_RGB_fin                   #Si es la cuarta iteracion del string se termina
+    beq $t4 3 read_RGB_fin          #Si es la cuarta iteracion del string se termina
 
     la $a0 ($t3)                    #cargamos el string que corresponde segun el ciclo del bucle
     li $v0 4                        #escribimos string
@@ -61,7 +64,15 @@ read_RGB_while:
 
 read_RGB_error:
 
+    #Se comunica al usuario que ha habido un error
+    li $v0 4
+    la $a0 str_error
+    syscall
+
 read_RGB_fin:
+
+    lw $t0 rgb_new_color            #pasamos el color ingresado correctamente a actualColor
+    sw $t0 actualColor
 
     li $v0 10
     syscall
