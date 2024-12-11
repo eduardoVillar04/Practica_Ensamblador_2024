@@ -35,7 +35,7 @@ main:
 
 read_hex_while:
 
-    lb $a0 ($a2)            #guardamos el valor del caracter correspondiente en a0
+    lb $a0 ($a2)                    #guardamos el valor del caracter correspondiente en a0
     beq $a0 10 read_hex_fin         #si el caracter actual es 10 (LINE FEED), el bucle termina
 
     mul $a1 $a1 16        
@@ -45,7 +45,7 @@ read_hex_while:
     
     add $a1 $a1 $v0
 
-    addu $a2 1              #Sumamos 1 a la direccion de memoria para ir al siguiente byte
+    addu $a2 1                      #Sumamos 1 a la direccion de memoria para ir al siguiente byte
 
     j read_hex_while                #Repetimos bucle
 

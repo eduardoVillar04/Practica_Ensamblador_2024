@@ -42,8 +42,9 @@ str_read_hex: .asciiz "\n\nIngrese valor hexadecimal: "
 str_red: .asciiz "INGRESA R [0,1]: "
 str_green: .asciiz "INGRESA G [0,1]: "
 str_blue: .asciiz "INGRESA B [0,1]: "
-float_zero: .float 0.0
-float_one: .float 1.0
+float_0: .float 0.0
+float_1: .float 1.0
+float_255: .float 255.0
 
 #filters
 RedFilter: .word 0x00FF0000
@@ -211,11 +212,9 @@ finh2i:
 
 leerRGB:
     
-    li $t1 255                      #pasamos el 255 a float para poder multiplicar con el
-    l.s $f3 float_zero              #cargamos 0 y 1 para hacer luego comparaciones
-    l.s $f4 float_one
-    mtc1 $t1 $f1                    #movemos el valor al coprocesador 
-    cvt.s.w $f1 $f1                 #convertimos de int a float
+    l.s $f1 float_255               #cargamos 255 a f1 para multiplicar luego con él
+    l.s $f3 float_0                 #cargamos 0 y 1 para hacer luego comparaciones
+    l.s $f4 float_1
 
     la $t2 newRed                   #guardamos la direccion de newRed en $t2
     la $t3 str_red                  #guardamos la direccion de str_red en $t3
