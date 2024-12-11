@@ -34,6 +34,7 @@ msj_prueba: .asciiz "\n\nPRUEBA"
 msj_read_success: .asciiz "\n\nColor ingresado correctamente"
 str_buffer: .space 6
 str_fin: .byte 0
+.byte 0
 
 #read hex
 str_read_hex: .asciiz "\n\nIngrese valor hexadecimal: "
